@@ -8,26 +8,33 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 
 async function setup() {
+  const dbName = process.env.DB_NAME || 'sinergicare';
+
+  // Step 1: Connect without DB to create it
+  const connInit = await mysql.createConnection({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT) || 3306,
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    charset: 'utf8mb4'
+  });
+  console.log('✅ Terhubung ke MySQL server');
+  await connInit.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
+  await connInit.end();
+
+  // Step 2: Reconnect with DB selected
   const conn = await mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 3306,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
-    charset: 'utf8mb4',
-    multipleStatements: true
+    database: dbName,
+    charset: 'utf8mb4'
   });
-
-  console.log('✅ Terhubung ke MySQL server');
-
-  // Create database
-  await conn.execute(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME || 'sinergicare'}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
-  await conn.execute(`USE \`${process.env.DB_NAME || 'sinergicare'}\``);
   console.log('✅ Database dibuat/dipilih');
 
-  // ============================================================
-  // TABLE: classes
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: classes ──────────────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS classes (
       id INT PRIMARY KEY AUTO_INCREMENT,
       nama_kelas VARCHAR(100) NOT NULL UNIQUE,
@@ -35,10 +42,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: roles
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: roles ────────────────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS roles (
       id INT PRIMARY KEY AUTO_INCREMENT,
       nama_role VARCHAR(50) NOT NULL UNIQUE,
@@ -46,10 +51,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: staf_sekolah
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: staf_sekolah ─────────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS staf_sekolah (
       id INT PRIMARY KEY AUTO_INCREMENT,
       nama VARCHAR(150) NOT NULL,
@@ -63,10 +66,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: students
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: students ─────────────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS students (
       id INT PRIMARY KEY AUTO_INCREMENT,
       nisn VARCHAR(20) NOT NULL UNIQUE,
@@ -90,10 +91,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: violation_categories
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: violation_categories ─────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS violation_categories (
       id INT PRIMARY KEY AUTO_INCREMENT,
       nama_kejadian VARCHAR(200) NOT NULL,
@@ -103,10 +102,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: incidents
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: incidents ────────────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS incidents (
       id INT PRIMARY KEY AUTO_INCREMENT,
       student_id INT NOT NULL,
@@ -123,10 +120,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: consequences (Tugas Pemulihan BK)
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: consequences ─────────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS consequences (
       id INT PRIMARY KEY AUTO_INCREMENT,
       student_id INT NOT NULL,
@@ -144,10 +139,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: sp_records (Surat Peringatan)
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: sp_records ───────────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS sp_records (
       id INT PRIMARY KEY AUTO_INCREMENT,
       student_id INT NOT NULL,
@@ -167,10 +160,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: log_surat (Arsip Cetak Surat)
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: log_surat ────────────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS log_surat (
       id INT PRIMARY KEY AUTO_INCREMENT,
       student_id INT NOT NULL,
@@ -183,10 +174,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: panggilan_ortu
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: panggilan_ortu ───────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS panggilan_ortu (
       id INT PRIMARY KEY AUTO_INCREMENT,
       student_id INT NOT NULL,
@@ -200,10 +189,8 @@ async function setup() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // ============================================================
-  // TABLE: izin_meninggalkan
-  // ============================================================
-  await conn.execute(`
+  // ── TABLE: izin_meninggalkan ────────────────────────────────
+  await conn.query(`
     CREATE TABLE IF NOT EXISTS izin_meninggalkan (
       id INT PRIMARY KEY AUTO_INCREMENT,
       student_id INT NOT NULL,
@@ -220,31 +207,34 @@ async function setup() {
 
   console.log('✅ Semua tabel berhasil dibuat');
 
-  // ============================================================
-  // INDEXES
-  // ============================================================
-  const indexes = [
-    `CREATE INDEX IF NOT EXISTS idx_students_status_warna ON students(status_warna)`,
-    `CREATE INDEX IF NOT EXISTS idx_students_class_id ON students(class_id)`,
-    `CREATE INDEX IF NOT EXISTS idx_students_nisn ON students(nisn)`,
-    `CREATE INDEX IF NOT EXISTS idx_incidents_student_id ON incidents(student_id)`,
-    `CREATE INDEX IF NOT EXISTS idx_incidents_tanggal ON incidents(tanggal_kejadian)`,
-    `CREATE INDEX IF NOT EXISTS idx_incidents_user_id ON incidents(user_id)`,
-    `CREATE INDEX IF NOT EXISTS idx_staf_username ON staf_sekolah(username)`,
-    `CREATE INDEX IF NOT EXISTS idx_staf_role ON staf_sekolah(role)`,
-    `CREATE INDEX IF NOT EXISTS idx_sp_student ON sp_records(student_id)`,
-    `CREATE INDEX IF NOT EXISTS idx_sp_status ON sp_records(status_approval)`,
-    `CREATE INDEX IF NOT EXISTS idx_consequences_student ON consequences(student_id)`,
+  // ── INDEXES ─────────────────────────────────────────────────
+  const indexDefs = [
+    { name: 'idx_students_status_warna', table: 'students', col: 'status_warna' },
+    { name: 'idx_students_class_id', table: 'students', col: 'class_id' },
+    { name: 'idx_incidents_student_id', table: 'incidents', col: 'student_id' },
+    { name: 'idx_incidents_tanggal', table: 'incidents', col: 'tanggal_kejadian' },
+    { name: 'idx_incidents_user_id', table: 'incidents', col: 'user_id' },
+    { name: 'idx_staf_role', table: 'staf_sekolah', col: 'role' },
+    { name: 'idx_sp_student', table: 'sp_records', col: 'student_id' },
+    { name: 'idx_sp_status', table: 'sp_records', col: 'status_approval' },
+    { name: 'idx_consequences_student', table: 'consequences', col: 'student_id' },
   ];
 
-  for (const idx of indexes) {
-    try { await conn.execute(idx); } catch(e) { /* index may already exist */ }
+  for (const idx of indexDefs) {
+    try {
+      const [rows] = await conn.execute(
+        `SELECT COUNT(*) as cnt FROM information_schema.statistics
+         WHERE table_schema = ? AND table_name = ? AND index_name = ?`,
+        [dbName, idx.table, idx.name]
+      );
+      if (rows[0].cnt === 0) {
+        await conn.query(`CREATE INDEX ${idx.name} ON ${idx.table}(${idx.col})`);
+      }
+    } catch(e) { /* skip */ }
   }
   console.log('✅ Index database berhasil dibuat');
 
-  // ============================================================
-  // SEED: Roles
-  // ============================================================
+  // ── SEED: Roles ─────────────────────────────────────────────
   const rolesData = [
     ['super_admin', 'Super Administrator'],
     ['admin', 'Administrator'],
@@ -254,67 +244,33 @@ async function setup() {
     ['kepala_jurusan', 'Kepala Jurusan']
   ];
   for (const [nama, label] of rolesData) {
+    await conn.execute(`INSERT IGNORE INTO roles (nama_role, label) VALUES (?, ?)`, [nama, label]);
+  }
+
+  // ── SEED: Staf ──────────────────────────────────────────────
+  const stafData = [
+    ['Super Administrator', 'superadmin@sinergicare.sch.id', 'superadmin', 'admin123', 'super_admin'],
+    ['Administrator', 'admin@sinergicare.sch.id', 'admin', 'admin123', 'admin'],
+    ['Guru BK Utama', 'bk@sinergicare.sch.id', 'bk', 'bk123', 'bk'],
+    ['Budi Santoso', 'guru@sinergicare.sch.id', 'guru', 'guru123', 'guru'],
+    ['Waka Kesiswaan', 'waka@sinergicare.sch.id', 'waka', 'waka123', 'waka_kesiswaan'],
+    ['Kepala Jurusan TKJ', 'kajur@sinergicare.sch.id', 'kajur', 'kajur123', 'kepala_jurusan'],
+  ];
+  for (const [nama, email, username, pass, role] of stafData) {
+    const hashed = await bcrypt.hash(pass, 12);
     await conn.execute(
-      `INSERT IGNORE INTO roles (nama_role, label) VALUES (?, ?)`,
-      [nama, label]
+      `INSERT IGNORE INTO staf_sekolah (nama, email, username, password, role) VALUES (?, ?, ?, ?, ?)`,
+      [nama, email, username, hashed, role]
     );
   }
 
-  // ============================================================
-  // SEED: Super Admin
-  // ============================================================
-  const hashedPassword = await bcrypt.hash('admin123', 12);
-  await conn.execute(
-    `INSERT IGNORE INTO staf_sekolah (nama, email, username, password, role) VALUES (?, ?, ?, ?, ?)`,
-    ['Super Administrator', 'superadmin@sinergicare.sch.id', 'superadmin', hashedPassword, 'super_admin']
-  );
-
-  // SEED: Admin
-  const adminPass = await bcrypt.hash('admin123', 12);
-  await conn.execute(
-    `INSERT IGNORE INTO staf_sekolah (nama, email, username, password, role) VALUES (?, ?, ?, ?, ?)`,
-    ['Administrator', 'admin@sinergicare.sch.id', 'admin', adminPass, 'admin']
-  );
-
-  // SEED: BK
-  const bkPass = await bcrypt.hash('bk123', 12);
-  await conn.execute(
-    `INSERT IGNORE INTO staf_sekolah (nama, email, username, password, role) VALUES (?, ?, ?, ?, ?)`,
-    ['Guru BK Utama', 'bk@sinergicare.sch.id', 'bk', bkPass, 'bk']
-  );
-
-  // SEED: Guru
-  const guruPass = await bcrypt.hash('guru123', 12);
-  await conn.execute(
-    `INSERT IGNORE INTO staf_sekolah (nama, email, username, password, role) VALUES (?, ?, ?, ?, ?)`,
-    ['Budi Santoso', 'guru@sinergicare.sch.id', 'guru', guruPass, 'guru']
-  );
-
-  // SEED: Waka
-  const wakaPass = await bcrypt.hash('waka123', 12);
-  await conn.execute(
-    `INSERT IGNORE INTO staf_sekolah (nama, email, username, password, role) VALUES (?, ?, ?, ?, ?)`,
-    ['Waka Kesiswaan', 'waka@sinergicare.sch.id', 'waka', wakaPass, 'waka_kesiswaan']
-  );
-
-  // SEED: Kajur
-  const kajurPass = await bcrypt.hash('kajur123', 12);
-  await conn.execute(
-    `INSERT IGNORE INTO staf_sekolah (nama, email, username, password, role) VALUES (?, ?, ?, ?, ?)`,
-    ['Kepala Jurusan TKJ', 'kajur@sinergicare.sch.id', 'kajur', kajurPass, 'kepala_jurusan']
-  );
-
-  // ============================================================
-  // SEED: Classes
-  // ============================================================
+  // ── SEED: Classes ───────────────────────────────────────────
   const classes = ['X TKJ 1', 'X TKJ 2', 'X RPL 1', 'XI TKJ 1', 'XI TKJ 2', 'XI RPL 1', 'XII TKJ 1', 'XII RPL 1'];
   for (const kelas of classes) {
     await conn.execute(`INSERT IGNORE INTO classes (nama_kelas) VALUES (?)`, [kelas]);
   }
 
-  // ============================================================
-  // SEED: Violation Categories
-  // ============================================================
+  // ── SEED: Violation Categories ──────────────────────────────
   const categories = [
     ['Terlambat masuk sekolah', 'Ringan'],
     ['Tidak memakai seragam lengkap', 'Ringan'],
@@ -339,23 +295,21 @@ async function setup() {
     );
   }
 
-  // ============================================================
-  // SEED: Sample Students
-  // ============================================================
+  // ── SEED: Sample Students ───────────────────────────────────
   const [classRows] = await conn.execute(`SELECT id FROM classes LIMIT 1`);
   if (classRows.length > 0) {
     const classId = classRows[0].id;
     const sampleStudents = [
-      ['1234567890', 'Ahmad Fauzi', classId, 'L'],
-      ['1234567891', 'Budi Prasetyo', classId, 'L'],
-      ['1234567892', 'Citra Dewi', classId, 'P'],
-      ['1234567893', 'Dian Permata', classId, 'P'],
-      ['1234567894', 'Eko Saputra', classId, 'L'],
+      ['1234567890', 'Ahmad Fauzi', classId, 'L', 'Bapak Fauzi', '08123456789'],
+      ['1234567891', 'Budi Prasetyo', classId, 'L', 'Bapak Prasetyo', '08123456790'],
+      ['1234567892', 'Citra Dewi', classId, 'P', 'Ibu Dewi', '08123456791'],
+      ['1234567893', 'Dian Permata', classId, 'P', 'Ibu Permata', '08123456792'],
+      ['1234567894', 'Eko Saputra', classId, 'L', 'Bapak Saputra', '08123456793'],
     ];
-    for (const [nisn, nama, cid, jk] of sampleStudents) {
+    for (const [nisn, nama, cid, jk, ortu, hp] of sampleStudents) {
       await conn.execute(
-        `INSERT IGNORE INTO students (nisn, nama, class_id, jenis_kelamin) VALUES (?, ?, ?, ?)`,
-        [nisn, nama, cid, jk]
+        `INSERT IGNORE INTO students (nisn, nama, class_id, jenis_kelamin, nama_ortu, no_hp_ortu) VALUES (?, ?, ?, ?, ?, ?)`,
+        [nisn, nama, cid, jk, ortu, hp]
       );
     }
   }
@@ -369,6 +323,7 @@ async function setup() {
   console.log('   Guru        : guru / guru123');
   console.log('   Waka        : waka / waka123');
   console.log('   Kajur       : kajur / kajur123');
+  console.log('\n🚀 Jalankan: npm start → http://localhost:3000');
 
   await conn.end();
 }
