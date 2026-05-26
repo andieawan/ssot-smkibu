@@ -1,0 +1,118 @@
+<%- include('../layouts/header') %>
+<div class="flex h-full min-h-screen">
+  <%- include('../layouts/sidebar') %>
+  <div class="flex-1 ml-64 flex flex-col min-h-screen">
+    <%- include('../layouts/topbar') %>
+    <%- include('../layouts/flash') %>
+    <main class="flex-1 p-6 space-y-5">
+
+      <!-- Header Actions -->
+      <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Total: <strong><%= total_count %></strong> insiden ditemukan</p>
+        </div>
+        <a href="/jurnal/tambah" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Catat Insiden Baru
+        </a>
+      </div>
+
+      <!-- Filter -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+        <form method="GET" action="/jurnal" class="flex flex-wrap gap-3">
+          <input type="text" name="search" value="<%= search %>" placeholder="Cari nama/NISN siswa..."
+            class="flex-1 min-w-48 px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <select name="kelas" class="px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">Semua Kelas</option>
+            <% classes.forEach(k => { %>
+            <option value="<%= k.id %>" <%= kelas == k.id ? 'selected' : '' %>><%= k.nama_kelas %></option>
+            <% }) %>
+          </select>
+          <select name="bobot" class="px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">Semua Bobot</option>
+            <option value="Ringan" <%= bobot === 'Ringan' ? 'selected' : '' %>>Ringan (1 poin)</option>
+            <option value="Sedang" <%= bobot === 'Sedang' ? 'selected' : '' %>>Sedang (3 poin)</option>
+            <option value="Berat" <%= bobot === 'Berat' ? 'selected' : '' %>>Berat (10 poin)</option>
+          </select>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors">Filter</button>
+          <a href="/jurnal" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">Reset</a>
+        </form>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Siswa</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pelanggaran</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Bobot</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pelapor</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <% if (incidents.length === 0) { %>
+              <tr><td colspan="6" class="px-5 py-10 text-center text-gray-400">Tidak ada data insiden</td></tr>
+              <% } else { %>
+              <% incidents.forEach(inc => { %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-5 py-3">
+                  <a href="/siswa/<%= inc.student_id %>" class="font-semibold text-gray-800 hover:text-indigo-600"><%= inc.nama_siswa %></a>
+                  <div class="text-xs text-gray-400"><%= inc.nisn %> &bull; <%= inc.nama_kelas || '-' %></div>
+                </td>
+                <td class="px-5 py-3">
+                  <div class="font-medium text-gray-700"><%= inc.nama_kejadian %></div>
+                  <% if (inc.lokasi_kejadian) { %><div class="text-xs text-gray-400">📍 <%= inc.lokasi_kejadian %></div><% } %>
+                  <% if (inc.catatan) { %><div class="text-xs text-gray-400 truncate max-w-xs"><%= inc.catatan %></div><% } %>
+                </td>
+                <td class="px-5 py-3">
+                  <span class="badge-<%= inc.bobot_risiko.toLowerCase() %>"><%= inc.bobot_risiko %></span>
+                </td>
+                <td class="px-5 py-3 text-gray-600 whitespace-nowrap">
+                  <%= new Date(inc.tanggal_kejadian).toLocaleDateString('id-ID') %>
+                </td>
+                <td class="px-5 py-3 text-gray-600"><%= inc.nama_pelapor || '-' %></td>
+                <td class="px-5 py-3">
+                  <% if (inc.canEdit) { %>
+                  <div class="flex gap-2">
+                    <a href="/jurnal/edit/<%= inc.id %>" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-medium transition-colors">Edit</a>
+                    <form action="/jurnal/hapus/<%= inc.id %>" method="POST" onsubmit="return confirm('Hapus insiden ini?')">
+                      <button type="submit" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg font-medium transition-colors">Hapus</button>
+                    </form>
+                  </div>
+                  <% } else { %>
+                  <span class="text-gray-400 text-lg" title="Waktu edit sudah habis (30 menit)">🔒</span>
+                  <% } %>
+                </td>
+              </tr>
+              <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+        <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-between">
+          <span class="text-sm text-gray-500">Halaman <%= page %> dari <%= totalPages %></span>
+          <div class="flex gap-2">
+            <% if (page > 1) { %>
+            <a href="/jurnal?page=<%= page-1 %>&search=<%= search %>&kelas=<%= kelas %>&bobot=<%= bobot %>"
+              class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">← Prev</a>
+            <% } %>
+            <% if (page < totalPages) { %>
+            <a href="/jurnal?page=<%= page+1 %>&search=<%= search %>&kelas=<%= kelas %>&bobot=<%= bobot %>"
+              class="px-3 py-1.5 text-sm bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors">Next →</a>
+            <% } %>
+          </div>
+        </div>
+        <% } %>
+      </div>
+
+    </main>
+  </div>
+</div>
+<%- include('../layouts/footer') %>

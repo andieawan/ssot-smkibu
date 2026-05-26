@@ -1,0 +1,223 @@
+<%- include('../layouts/header') %>
+<div class="flex h-full min-h-screen">
+  <%- include('../layouts/sidebar') %>
+  <div class="flex-1 ml-64 flex flex-col min-h-screen">
+    <%- include('../layouts/topbar') %>
+    <%- include('../layouts/flash') %>
+    <main class="flex-1 p-6 space-y-6">
+
+      <!-- Zona Radar Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+        <!-- Total -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 card-hover">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            </div>
+            <span class="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-1 rounded-full">Total</span>
+          </div>
+          <div class="text-3xl font-black text-gray-800"><%= total %></div>
+          <div class="text-sm text-gray-500 mt-1">Total Siswa</div>
+        </div>
+
+        <!-- Zona Hijau -->
+        <div class="zona-hijau rounded-2xl p-5 shadow-sm card-hover text-white">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <span class="text-xs font-medium bg-white/20 px-2 py-1 rounded-full">0–2 poin</span>
+          </div>
+          <div class="text-3xl font-black"><%= zona.hijau %></div>
+          <div class="text-sm text-green-100 mt-1">Zona Hijau (Aman)</div>
+          <div class="text-xs text-green-200 mt-1"><%= total > 0 ? Math.round(zona.hijau/total*100) : 0 %>% dari total</div>
+        </div>
+
+        <!-- Zona Kuning -->
+        <div class="zona-kuning rounded-2xl p-5 shadow-sm card-hover text-white">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <span class="text-xs font-medium bg-white/20 px-2 py-1 rounded-full">3–9 poin</span>
+          </div>
+          <div class="text-3xl font-black"><%= zona.kuning %></div>
+          <div class="text-sm text-yellow-100 mt-1">Zona Kuning (Waspada)</div>
+          <div class="text-xs text-yellow-200 mt-1"><%= total > 0 ? Math.round(zona.kuning/total*100) : 0 %>% dari total</div>
+        </div>
+
+        <!-- Zona Merah -->
+        <div class="zona-merah rounded-2xl p-5 shadow-sm card-hover text-white">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <span class="text-xs font-medium bg-white/20 px-2 py-1 rounded-full">≥10 poin</span>
+          </div>
+          <div class="text-3xl font-black"><%= zona.merah %></div>
+          <div class="text-sm text-red-100 mt-1">Zona Merah (Kritis)</div>
+          <div class="text-xs text-red-200 mt-1"><%= total > 0 ? Math.round(zona.merah/total*100) : 0 %>% dari total</div>
+        </div>
+      </div>
+
+      <!-- Charts & Top Kelas -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Donut Chart -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h3 class="font-bold text-gray-800 mb-4">Distribusi Radar Karakter</h3>
+          <div class="relative h-52 flex items-center justify-center">
+            <canvas id="radarChart"></canvas>
+          </div>
+          <div class="flex justify-center gap-4 mt-4 text-xs">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>Hijau (<%= zona.hijau %>)</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>Kuning (<%= zona.kuning %>)</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>Merah (<%= zona.merah %>)</span>
+          </div>
+        </div>
+
+        <!-- Top 3 Kelas Rawan -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h3 class="font-bold text-gray-800 mb-4">Top 3 Kelas Rawan Kasus</h3>
+          <% if (topKelas.length === 0) { %>
+            <p class="text-gray-400 text-sm text-center py-8">Belum ada data kelas</p>
+          <% } else { %>
+          <div class="space-y-3">
+            <% topKelas.forEach((kelas, i) => { %>
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
+                <%= i === 0 ? 'bg-red-100 text-red-700' : i === 1 ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-700' %>">
+                <%= i + 1 %>
+              </div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm text-gray-800"><%= kelas.nama_kelas %></div>
+                <div class="text-xs text-gray-500"><%= kelas.total_insiden %> insiden total</div>
+              </div>
+              <div class="text-right">
+                <span class="badge-merah"><%= kelas.merah %> merah</span>
+              </div>
+            </div>
+            <% }) %>
+          </div>
+          <% } %>
+        </div>
+
+        <!-- Tren Bulanan -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h3 class="font-bold text-gray-800 mb-4">Tren Pelanggaran 6 Bulan</h3>
+          <div class="h-52">
+            <canvas id="trenChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log Insiden & Probation -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Log Insiden -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="font-bold text-gray-800">Log Insiden Terkini</h3>
+            <a href="/jurnal" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Lihat Semua →</a>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <% if (insidenHariIni.length === 0) { %>
+              <div class="px-6 py-8 text-center text-gray-400 text-sm">Belum ada insiden hari ini</div>
+            <% } else { %>
+              <% insidenHariIni.slice(0, 8).forEach(inc => { %>
+              <div class="px-6 py-3 flex items-start gap-3 hover:bg-gray-50 transition-colors">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5
+                  <%= inc.bobot_risiko === 'Berat' ? 'bg-red-100' : inc.bobot_risiko === 'Sedang' ? 'bg-orange-100' : 'bg-blue-100' %>">
+                  <span class="text-xs font-bold
+                    <%= inc.bobot_risiko === 'Berat' ? 'text-red-700' : inc.bobot_risiko === 'Sedang' ? 'text-orange-700' : 'text-blue-700' %>">
+                    <%= inc.bobot_risiko === 'Berat' ? 'B' : inc.bobot_risiko === 'Sedang' ? 'S' : 'R' %>
+                  </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <a href="/siswa/<%= inc.student_id %>" class="font-semibold text-sm text-gray-800 hover:text-indigo-600 truncate"><%= inc.nama_siswa %></a>
+                    <span class="text-xs text-gray-400 flex-shrink-0"><%= inc.nama_kelas || '-' %></span>
+                  </div>
+                  <div class="text-xs text-gray-600 truncate"><%= inc.nama_kejadian %></div>
+                  <div class="text-xs text-gray-400"><%= inc.nama_pelapor || 'Sistem' %> &bull; <%= new Date(inc.tanggal_kejadian).toLocaleDateString('id-ID') %></div>
+                </div>
+                <span class="badge-<%= inc.bobot_risiko.toLowerCase() %> flex-shrink-0"><%= inc.bobot_risiko %></span>
+              </div>
+              <% }) %>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Probation Aktif -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="font-bold text-gray-800">Probation Aktif</h3>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <% if (probationSiswa.length === 0) { %>
+              <div class="px-6 py-8 text-center text-gray-400 text-sm">Tidak ada siswa dalam probation</div>
+            <% } else { %>
+              <% probationSiswa.forEach(s => { %>
+              <div class="px-6 py-3">
+                <a href="/siswa/<%= s.id %>" class="font-semibold text-sm text-gray-800 hover:text-indigo-600 block"><%= s.nama %></a>
+                <div class="text-xs text-gray-500"><%= s.nama_kelas || '-' %></div>
+                <div class="text-xs text-red-600 font-medium mt-1">
+                  Berakhir: <%= new Date(s.probation_end).toLocaleDateString('id-ID') %>
+                </div>
+              </div>
+              <% }) %>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// Donut Chart
+const ctx1 = document.getElementById('radarChart').getContext('2d');
+new Chart(ctx1, {
+  type: 'doughnut',
+  data: {
+    labels: ['Zona Hijau', 'Zona Kuning', 'Zona Merah'],
+    datasets: [{
+      data: [<%= zona.hijau %>, <%= zona.kuning %>, <%= zona.merah %>],
+      backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+      borderWidth: 0,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    cutout: '70%'
+  }
+});
+
+// Tren Chart
+const trenData = <%- JSON.stringify(trenBulanan) %>;
+const ctx2 = document.getElementById('trenChart').getContext('2d');
+new Chart(ctx2, {
+  type: 'bar',
+  data: {
+    labels: trenData.map(d => d.bulan),
+    datasets: [{
+      label: 'Insiden',
+      data: trenData.map(d => d.jumlah),
+      backgroundColor: '#6366f1',
+      borderRadius: 6,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { stepSize: 1 } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Rekap Riwayat Pelanggaran - <%= siswa.nama %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Times New Roman', serif; font-size: 11pt; color: #000; background: #fff; }
+    .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 15mm 20mm; }
+    .kop { display: flex; align-items: center; gap: 15px; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+    .kop img { width: 60px; height: 60px; object-fit: contain; }
+    .kop-text { flex: 1; text-align: center; }
+    .kop-text h1 { font-size: 14pt; font-weight: bold; text-transform: uppercase; }
+    .kop-text h2 { font-size: 12pt; font-weight: bold; text-transform: uppercase; }
+    .judul { text-align: center; margin: 15px 0; }
+    .judul h3 { font-size: 13pt; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
+    .profil-box { border: 1px solid #000; padding: 10px; margin: 10px 0; }
+    .profil-table td { padding: 2px 5px; }
+    .profil-table td:first-child { width: 150px; font-weight: bold; }
+    table.insiden { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10pt; }
+    table.insiden th, table.insiden td { border: 1px solid #000; padding: 5px 8px; }
+    table.insiden th { background: #e5e7eb; font-weight: bold; text-align: center; }
+    .zona-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10pt; }
+    .zona-hijau { background: #d1fae5; color: #065f46; }
+    .zona-kuning { background: #fef3c7; color: #92400e; }
+    .zona-merah { background: #fee2e2; color: #991b1b; }
+    .ttd { margin-top: 30px; text-align: right; }
+    .ttd-space { height: 60px; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="display:block; padding:10px; background:#f0f0f0; text-align:center; margin-bottom:10px;">
+    <button onclick="window.print()" style="background:#7c3aed;color:white;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">🖨️ Cetak Riwayat</button>
+    <button onclick="window.close()" style="background:#6b7280;color:white;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:10px;">✕ Tutup</button>
+  </div>
+
+  <div class="page">
+    <div class="kop">
+      <% if (hasLogo) { %><img src="/uploads/logo.png" alt="Logo"><% } %>
+      <div class="kop-text">
+        <h1>SMK Negeri 1 Contoh</h1>
+        <h2>Rekap Riwayat Pelanggaran Siswa</h2>
+        <p>Jl. Pendidikan No. 1 | Telp: (021) 1234567</p>
+      </div>
+    </div>
+
+    <div class="judul">
+      <h3>Rekap Riwayat Pelanggaran</h3>
+      <p>Dicetak pada: <%= today %></p>
+    </div>
+
+    <!-- Profil Siswa -->
+    <div class="profil-box">
+      <table class="profil-table">
+        <tr><td>Nama Siswa</td><td>: <strong><%= siswa.nama %></strong></td><td style="width:150px">Status Radar</td><td>: <span class="zona-badge zona-<%= siswa.status_warna %>"><%= siswa.status_warna.toUpperCase() %></span></td></tr>
+        <tr><td>NISN</td><td>: <%= siswa.nisn %></td><td>Total Poin</td><td>: <strong><%= siswa.total_poin %> poin</strong></td></tr>
+        <tr><td>Kelas</td><td>: <%= siswa.nama_kelas || '-' %></td><td>Status SP</td><td>: <%= siswa.status_sp.toUpperCase() %></td></tr>
+        <tr><td>Orang Tua/Wali</td><td>: <%= siswa.nama_ortu || '-' %></td><td>Probation</td><td>: <%= siswa.is_probation ? 'Aktif s/d ' + formatTanggal(siswa.probation_end) : 'Tidak' %></td></tr>
+      </table>
+    </div>
+
+    <!-- Tabel Insiden -->
+    <h4 style="margin: 15px 0 8px; font-size: 11pt;">Riwayat Insiden (<%= incidents.length %> kejadian)</h4>
+    <table class="insiden">
+      <thead>
+        <tr>
+          <th style="width:30px">No</th>
+          <th>Tanggal</th>
+          <th>Jenis Pelanggaran</th>
+          <th>Bobot</th>
+          <th>Lokasi</th>
+          <th>Pelapor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (incidents.length === 0) { %>
+        <tr><td colspan="6" style="text-align:center; padding:10px;">Tidak ada riwayat insiden</td></tr>
+        <% } else { %>
+        <% incidents.forEach((inc, i) => { %>
+        <tr>
+          <td style="text-align:center"><%= i+1 %></td>
+          <td><%= formatTanggal(inc.tanggal_kejadian) %></td>
+          <td><%= inc.nama_kejadian %></td>
+          <td style="text-align:center"><%= inc.bobot_risiko %></td>
+          <td><%= inc.lokasi_kejadian || '-' %></td>
+          <td><%= inc.nama_pelapor || '-' %></td>
+        </tr>
+        <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+
+    <!-- SP Records -->
+    <% if (spRecords.length > 0) { %>
+    <h4 style="margin: 15px 0 8px; font-size: 11pt;">Riwayat Surat Peringatan</h4>
+    <table class="insiden">
+      <thead>
+        <tr><th>Jenis SP</th><th>Tanggal</th><th>Status</th><th>Alasan</th></tr>
+      </thead>
+      <tbody>
+        <% spRecords.forEach(sp => { %>
+        <tr>
+          <td style="text-align:center; font-weight:bold"><%= sp.jenis_sp.toUpperCase() %></td>
+          <td><%= formatTanggal(sp.tanggal_dibuat) %></td>
+          <td style="text-align:center"><%= sp.status_approval %></td>
+          <td><%= sp.alasan %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <% } %>
+
+    <div class="ttd">
+      <p><%= today %></p>
+      <p>Mengetahui,</p>
+      <div class="ttd-space"></div>
+      <p><strong>Guru Bimbingan Konseling</strong></p>
+      <p>NIP. _______________</p>
+    </div>
+  </div>
+</body>
+</html>

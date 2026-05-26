@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Surat Panggilan Orang Tua</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Times New Roman', serif; font-size: 12pt; color: #000; background: #fff; }
+    .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 20mm 25mm; }
+    .kop { display: flex; align-items: center; gap: 15px; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+    .kop img { width: 70px; height: 70px; object-fit: contain; }
+    .kop-text { flex: 1; text-align: center; }
+    .kop-text h1 { font-size: 16pt; font-weight: bold; text-transform: uppercase; }
+    .kop-text h2 { font-size: 13pt; font-weight: bold; text-transform: uppercase; }
+    .kop-text p { font-size: 10pt; }
+    .nomor-surat { text-align: center; margin: 20px 0 15px; }
+    .nomor-surat h3 { font-size: 13pt; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
+    .nomor-surat p { font-size: 11pt; }
+    .pembuka { margin-bottom: 15px; line-height: 1.8; }
+    .data-table { width: 100%; margin: 15px 0; }
+    .data-table td { padding: 3px 0; vertical-align: top; }
+    .data-table td:first-child { width: 180px; }
+    .data-table td:nth-child(2) { width: 15px; }
+    .isi { line-height: 1.8; margin: 15px 0; text-align: justify; }
+    .ttd { margin-top: 40px; }
+    .ttd-kanan { float: right; text-align: center; width: 200px; }
+    .ttd-kiri { float: left; text-align: center; width: 200px; }
+    .ttd-space { height: 70px; }
+    .clearfix::after { content: ''; display: table; clear: both; }
+    .no-print { display: none; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="display:block; padding:10px; background:#f0f0f0; text-align:center; margin-bottom:10px;">
+    <button onclick="window.print()" style="background:#4f46e5;color:white;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">🖨️ Cetak Surat</button>
+    <button onclick="window.close()" style="background:#6b7280;color:white;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:10px;">✕ Tutup</button>
+  </div>
+
+  <div class="page">
+    <!-- KOP SURAT -->
+    <div class="kop">
+      <% if (hasLogo) { %>
+      <img src="/uploads/logo.png" alt="Logo Sekolah">
+      <% } %>
+      <div class="kop-text">
+        <h1>Pemerintah Daerah</h1>
+        <h2>SMK Negeri 1 Contoh</h2>
+        <p>Jl. Pendidikan No. 1, Kota Contoh, Provinsi Contoh</p>
+        <p>Telp: (021) 1234567 | Email: info@smkn1contoh.sch.id</p>
+      </div>
+    </div>
+
+    <!-- NOMOR SURAT -->
+    <div class="nomor-surat">
+      <h3>Surat Panggilan Orang Tua / Wali Siswa</h3>
+      <p>Nomor: <%= new Date().getFullYear() %>/BK/PANGGILAN/<%= data.id %></p>
+    </div>
+
+    <!-- PEMBUKA -->
+    <div class="pembuka">
+      <p>Yang bertanda tangan di bawah ini, Guru Bimbingan Konseling SMK Negeri 1 Contoh, dengan ini mengundang Bapak/Ibu Orang Tua/Wali dari siswa:</p>
+    </div>
+
+    <!-- DATA SISWA -->
+    <table class="data-table">
+      <tr><td>Nama Siswa</td><td>:</td><td><strong><%= data.nama_siswa %></strong></td></tr>
+      <tr><td>NISN</td><td>:</td><td><%= data.nisn %></td></tr>
+      <tr><td>Kelas</td><td>:</td><td><%= data.nama_kelas || '-' %></td></tr>
+      <tr><td>Nama Orang Tua/Wali</td><td>:</td><td><%= data.nama_ortu || '-' %></td></tr>
+    </table>
+
+    <div class="isi">
+      <p>Untuk hadir di sekolah guna membicarakan hal-hal yang berkaitan dengan perkembangan kedisiplinan dan perilaku putra/putri Bapak/Ibu di sekolah, pada:</p>
+    </div>
+
+    <table class="data-table">
+      <tr><td>Hari/Tanggal</td><td>:</td><td><strong><%= formatTanggal(data.tanggal_hadir) %></strong></td></tr>
+      <tr><td>Pukul</td><td>:</td><td><strong><%= data.jam_hadir %> WIB</strong></td></tr>
+      <tr><td>Tempat</td><td>:</td><td>Ruang Bimbingan Konseling SMK Negeri 1 Contoh</td></tr>
+      <% if (data.keperluan) { %><tr><td>Keperluan</td><td>:</td><td><%= data.keperluan %></td></tr><% } %>
+    </table>
+
+    <div class="isi">
+      <p>Demikian surat panggilan ini kami sampaikan. Atas perhatian dan kehadiran Bapak/Ibu, kami ucapkan terima kasih.</p>
+    </div>
+
+    <!-- TTD -->
+    <div class="ttd clearfix">
+      <div class="ttd-kanan">
+        <p><%= today %></p>
+        <p>Guru Bimbingan Konseling,</p>
+        <div class="ttd-space"></div>
+        <p><strong><%= data.dibuat_oleh_nama || 'Guru BK' %></strong></p>
+        <p>NIP. _______________</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

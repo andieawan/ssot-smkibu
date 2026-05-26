@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Surat Pernyataan Kedisiplinan - <%= siswa.nama %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Times New Roman', serif; font-size: 12pt; color: #000; background: #fff; }
+    .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 20mm 25mm; }
+    .kop { display: flex; align-items: center; gap: 15px; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+    .kop img { width: 70px; height: 70px; object-fit: contain; }
+    .kop-text { flex: 1; text-align: center; }
+    .kop-text h1 { font-size: 16pt; font-weight: bold; text-transform: uppercase; }
+    .kop-text h2 { font-size: 13pt; font-weight: bold; text-transform: uppercase; }
+    .judul { text-align: center; margin: 20px 0; }
+    .judul h3 { font-size: 14pt; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
+    .isi { line-height: 2; margin: 15px 0; text-align: justify; }
+    .data-table { width: 100%; margin: 10px 0; }
+    .data-table td { padding: 3px 0; }
+    .data-table td:first-child { width: 180px; }
+    .data-table td:nth-child(2) { width: 15px; }
+    .poin-list { margin: 10px 0 10px 20px; line-height: 2; }
+    .ttd { margin-top: 40px; }
+    .ttd-kanan { float: right; text-align: center; width: 200px; }
+    .ttd-kiri { float: left; text-align: center; width: 200px; }
+    .ttd-space { height: 70px; }
+    .clearfix::after { content: ''; display: table; clear: both; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="display:block; padding:10px; background:#f0f0f0; text-align:center; margin-bottom:10px;">
+    <button onclick="window.print()" style="background:#059669;color:white;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">🖨️ Cetak Surat</button>
+    <button onclick="window.close()" style="background:#6b7280;color:white;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:10px;">✕ Tutup</button>
+  </div>
+
+  <div class="page">
+    <div class="kop">
+      <% if (hasLogo) { %><img src="/uploads/logo.png" alt="Logo"><% } %>
+      <div class="kop-text">
+        <h1>Pemerintah Daerah</h1>
+        <h2>SMK Negeri 1 Contoh</h2>
+        <p>Jl. Pendidikan No. 1, Kota Contoh | Telp: (021) 1234567</p>
+      </div>
+    </div>
+
+    <div class="judul">
+      <h3>Surat Pernyataan Kedisiplinan Siswa</h3>
+    </div>
+
+    <div class="isi">
+      <p>Yang bertanda tangan di bawah ini:</p>
+    </div>
+
+    <table class="data-table">
+      <tr><td>Nama</td><td>:</td><td><strong><%= siswa.nama %></strong></td></tr>
+      <tr><td>NISN</td><td>:</td><td><%= siswa.nisn %></td></tr>
+      <tr><td>Kelas</td><td>:</td><td><%= siswa.nama_kelas || '-' %></td></tr>
+      <tr><td>Nama Orang Tua/Wali</td><td>:</td><td><%= siswa.nama_ortu || '_______________' %></td></tr>
+    </table>
+
+    <div class="isi">
+      <p>Dengan ini menyatakan dengan sesungguhnya bahwa saya berjanji dan bersedia untuk:</p>
+    </div>
+
+    <ol class="poin-list">
+      <li>Mematuhi seluruh peraturan dan tata tertib yang berlaku di SMK Negeri 1 Contoh.</li>
+      <li>Hadir tepat waktu dan mengikuti seluruh kegiatan pembelajaran dengan sungguh-sungguh.</li>
+      <li>Menjaga sikap, perilaku, dan tutur kata yang sopan di lingkungan sekolah.</li>
+      <li>Tidak melakukan tindakan yang melanggar norma, hukum, dan peraturan sekolah.</li>
+      <li>Bersedia menerima sanksi sesuai peraturan apabila melanggar tata tertib sekolah.</li>
+      <li>Menjaga nama baik sekolah di dalam maupun di luar lingkungan sekolah.</li>
+    </ol>
+
+    <div class="isi">
+      <p>Demikian surat pernyataan ini saya buat dengan sebenar-benarnya dan penuh kesadaran, tanpa paksaan dari pihak manapun. Apabila di kemudian hari saya melanggar pernyataan ini, saya bersedia menerima konsekuensi yang ditetapkan oleh pihak sekolah.</p>
+    </div>
+
+    <div class="ttd clearfix">
+      <div class="ttd-kiri">
+        <p>Orang Tua/Wali,</p>
+        <div class="ttd-space"></div>
+        <p><strong><%= siswa.nama_ortu || '_______________' %></strong></p>
+      </div>
+      <div class="ttd-kanan">
+        <p><%= today %></p>
+        <p>Yang Membuat Pernyataan,</p>
+        <div class="ttd-space"></div>
+        <p><strong><%= siswa.nama %></strong></p>
+        <p>NISN: <%= siswa.nisn %></p>
+      </div>
+    </div>
+
+    <div style="margin-top: 80px; text-align: center;">
+      <p>Mengetahui,</p>
+      <p>Guru Bimbingan Konseling</p>
+      <div class="ttd-space"></div>
+      <p><strong>_______________</strong></p>
+      <p>NIP. _______________</p>
+    </div>
+  </div>
+</body>
+</html>

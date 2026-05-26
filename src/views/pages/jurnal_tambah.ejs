@@ -1,0 +1,171 @@
+<%- include('../layouts/header') %>
+<div class="flex h-full min-h-screen">
+  <%- include('../layouts/sidebar') %>
+  <div class="flex-1 ml-64 flex flex-col min-h-screen">
+    <%- include('../layouts/topbar') %>
+    <%- include('../layouts/flash') %>
+    <main class="flex-1 p-6">
+      <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 class="text-lg font-bold text-gray-800 mb-6">Form Pencatatan Insiden</h2>
+
+          <form action="/jurnal/tambah" method="POST" class="space-y-5">
+            <!-- Pencarian Siswa AJAX -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Siswa <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <input type="text" id="siswa_search" placeholder="Ketik nama atau NISN siswa (min. 2 karakter)..."
+                  autocomplete="off"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <div id="siswa_dropdown" class="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-lg mt-1 hidden max-h-60 overflow-y-auto"></div>
+              </div>
+              <input type="hidden" name="student_id" id="student_id" required>
+              <div id="siswa_selected" class="mt-2 hidden p-3 bg-indigo-50 rounded-xl border border-indigo-200">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span id="siswa_nama_display" class="font-semibold text-indigo-800 text-sm"></span>
+                    <span id="siswa_info_display" class="text-xs text-indigo-600 ml-2"></span>
+                  </div>
+                  <button type="button" onclick="clearSiswa()" class="text-xs text-red-500 hover:text-red-700">Ganti</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Kategori Pelanggaran -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Kategori Pelanggaran <span class="text-red-500">*</span></label>
+              <select name="category_id" id="category_id" required onchange="updateBobot(this)"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">-- Pilih Kategori --</option>
+                <% const grouped = { Ringan: [], Sedang: [], Berat: [] };
+                   categories.forEach(c => grouped[c.bobot_risiko].push(c));
+                   ['Ringan','Sedang','Berat'].forEach(bobot => { %>
+                <optgroup label="<%= bobot %> (<%= bobot === 'Ringan' ? '1' : bobot === 'Sedang' ? '3' : '10' %> poin)">
+                  <% grouped[bobot].forEach(c => { %>
+                  <option value="<%= c.id %>" data-bobot="<%= c.bobot_risiko %>"><%= c.nama_kejadian %></option>
+                  <% }) %>
+                </optgroup>
+                <% }) %>
+              </select>
+              <div id="bobot_badge" class="mt-2 hidden">
+                <span id="bobot_label" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"></span>
+              </div>
+            </div>
+
+            <!-- Tanggal -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tanggal Kejadian <span class="text-red-500">*</span></label>
+              <input type="date" name="tanggal_kejadian" value="<%= today %>" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <!-- Lokasi -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Lokasi Kejadian</label>
+              <input type="text" name="lokasi_kejadian" placeholder="Contoh: Kelas X TKJ 1, Kantin, Lapangan..."
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <!-- Catatan -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Kronologi / Catatan</label>
+              <textarea name="catatan" rows="4" placeholder="Deskripsikan kronologi kejadian secara singkat dan jelas..."
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+              <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
+                Simpan Insiden
+              </button>
+              <a href="/jurnal" class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-colors text-sm">
+                Batal
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+let searchTimeout;
+const searchInput = document.getElementById('siswa_search');
+const dropdown = document.getElementById('siswa_dropdown');
+const studentIdInput = document.getElementById('student_id');
+const siswaSelected = document.getElementById('siswa_selected');
+
+searchInput.addEventListener('input', function() {
+  clearTimeout(searchTimeout);
+  const q = this.value.trim();
+  if (q.length < 2) { dropdown.classList.add('hidden'); return; }
+  searchTimeout = setTimeout(() => searchSiswa(q), 300);
+});
+
+async function searchSiswa(q) {
+  try {
+    const res = await fetch(`/jurnal/api/cari-siswa?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    dropdown.innerHTML = '';
+    if (data.length === 0) {
+      dropdown.innerHTML = '<div class="px-4 py-3 text-sm text-gray-400">Siswa tidak ditemukan</div>';
+    } else {
+      data.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'px-4 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-0';
+        const warnaBadge = s.status_warna === 'merah' ? 'bg-red-100 text-red-700' : s.status_warna === 'kuning' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700';
+        div.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-sm text-gray-800">${s.nama}</div>
+              <div class="text-xs text-gray-500">${s.nisn} &bull; ${s.nama_kelas || '-'}</div>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded-full font-medium ${warnaBadge}">${s.status_warna}</span>
+          </div>`;
+        div.addEventListener('click', () => selectSiswa(s));
+        dropdown.appendChild(div);
+      });
+    }
+    dropdown.classList.remove('hidden');
+  } catch(e) { dropdown.classList.add('hidden'); }
+}
+
+function selectSiswa(s) {
+  studentIdInput.value = s.id;
+  searchInput.style.display = 'none';
+  dropdown.classList.add('hidden');
+  document.getElementById('siswa_nama_display').textContent = s.nama;
+  document.getElementById('siswa_info_display').textContent = `${s.nisn} • ${s.nama_kelas || '-'}`;
+  siswaSelected.classList.remove('hidden');
+}
+
+function clearSiswa() {
+  studentIdInput.value = '';
+  searchInput.value = '';
+  searchInput.style.display = '';
+  siswaSelected.classList.add('hidden');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#siswa_search') && !e.target.closest('#siswa_dropdown')) {
+    dropdown.classList.add('hidden');
+  }
+});
+
+function updateBobot(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  const bobot = opt.dataset.bobot;
+  const badge = document.getElementById('bobot_badge');
+  const label = document.getElementById('bobot_label');
+  if (bobot) {
+    const colors = { Ringan: 'bg-blue-100 text-blue-700', Sedang: 'bg-orange-100 text-orange-700', Berat: 'bg-red-100 text-red-700' };
+    const poin = { Ringan: '1 poin', Sedang: '3 poin', Berat: '10 poin' };
+    label.className = `inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${colors[bobot]}`;
+    label.textContent = `${bobot} • ${poin[bobot]}`;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+</script>
+<%- include('../layouts/footer') %>
