@@ -1,0 +1,102 @@
+<%
+const role = user ? user.role : '';
+const isAdmin = ['super_admin','admin'].includes(role);
+const isBK = ['super_admin','admin','bk'].includes(role);
+const isWaka = ['super_admin','admin','waka_kesiswaan'].includes(role);
+const isKajur = ['super_admin','admin','kepala_jurusan'].includes(role);
+%>
+<!-- Sidebar -->
+<aside class="fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white flex flex-col z-40 shadow-2xl">
+  <!-- Logo -->
+  <div class="flex items-center gap-3 px-6 py-5 border-b border-white/10">
+    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md">
+      <span class="text-indigo-700 font-black text-lg">SC</span>
+    </div>
+    <div>
+      <div class="font-bold text-base leading-tight">SinergiCare</div>
+      <div class="text-indigo-300 text-xs">v3.0 SMK</div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    <div class="text-indigo-300 text-xs font-semibold uppercase tracking-wider px-4 mb-2">Menu Utama</div>
+
+    <a href="/dashboard" class="sidebar-link <%= currentPath === '/dashboard' ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      Dashboard
+    </a>
+
+    <a href="/jurnal" class="sidebar-link <%= currentPath.startsWith('/jurnal') ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Jurnal Insiden
+    </a>
+
+    <% if (isBK) { %>
+    <a href="/bk" class="sidebar-link <%= currentPath.startsWith('/bk') ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      Panel BK
+    </a>
+    <% } %>
+
+    <% if (isWaka) { %>
+    <a href="/waka" class="sidebar-link <%= currentPath.startsWith('/waka') ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      Panel Waka
+    </a>
+    <% } %>
+
+    <% if (isKajur) { %>
+    <a href="/kajur" class="sidebar-link <%= currentPath.startsWith('/kajur') ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      Panel Kajur
+    </a>
+    <% } %>
+
+    <a href="/cetak" class="sidebar-link <%= currentPath.startsWith('/cetak') ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+      Cetak Surat
+    </a>
+
+    <% if (isAdmin) { %>
+    <div class="text-indigo-300 text-xs font-semibold uppercase tracking-wider px-4 mt-4 mb-2">Administrasi</div>
+    <a href="/admin" class="sidebar-link <%= currentPath === '/admin' ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Panel Admin
+    </a>
+    <a href="/admin/siswa" class="sidebar-link <%= currentPath.startsWith('/admin/siswa') ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      Data Siswa
+    </a>
+    <a href="/admin/staf" class="sidebar-link <%= currentPath.startsWith('/admin/staf') ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      Data Staf
+    </a>
+    <a href="/admin/kelas" class="sidebar-link <%= currentPath.startsWith('/admin/kelas') ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      Data Kelas
+    </a>
+    <a href="/admin/kategori" class="sidebar-link <%= currentPath.startsWith('/admin/kategori') ? 'active' : 'text-indigo-100' %>">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-5 5a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 10V5a2 2 0 012-2z"/></svg>
+      Kategori Pelanggaran
+    </a>
+    <% } %>
+  </nav>
+
+  <!-- User Info -->
+  <div class="px-4 py-4 border-t border-white/10">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-9 h-9 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+        <%= user ? user.nama.charAt(0).toUpperCase() : 'U' %>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold text-white truncate"><%= user ? user.nama : '' %></div>
+        <div class="text-xs text-indigo-300 truncate"><%= user ? user.role.replace(/_/g,' ').replace(/\b\w/g, l => l.toUpperCase()) : '' %></div>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <a href="/profile" class="flex-1 text-center text-xs bg-white/10 hover:bg-white/20 text-white py-1.5 rounded-lg transition-colors">Profil</a>
+      <a href="/logout" class="flex-1 text-center text-xs bg-red-500/80 hover:bg-red-500 text-white py-1.5 rounded-lg transition-colors">Keluar</a>
+    </div>
+  </div>
+</aside>

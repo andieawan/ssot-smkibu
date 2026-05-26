@@ -1,19 +1,26 @@
 {
-  "name": "ssot-smk",
-  "version": "1.0.0",
-  "description": "Single Source of Truth (SSoT) Pusat Data SMK",
+  "name": "sinergicare-v3",
+  "version": "3.0.0",
+  "description": "SinergiCare v3.0 - Sistem Manajemen Kedisiplinan Siswa SMK",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node src/server.js"
+    "dev": "node src/server.js",
+    "setup": "node src/database/setup.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
+    "express-fileupload": "^1.5.1",
+    "express-session": "^1.18.0",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.11.3"
+    "method-override": "^3.0.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.11.3",
+    "xlsx": "^0.18.5"
   }
 }

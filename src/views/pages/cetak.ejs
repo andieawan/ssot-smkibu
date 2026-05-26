@@ -1,0 +1,123 @@
+<%- include('../layouts/header') %>
+<div class="flex h-full min-h-screen">
+  <%- include('../layouts/sidebar') %>
+  <div class="flex-1 ml-64 flex flex-col min-h-screen">
+    <%- include('../layouts/topbar') %>
+    <%- include('../layouts/flash') %>
+    <main class="flex-1 p-6 space-y-5">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Surat Panggilan Ortu -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          </div>
+          <h3 class="font-bold text-gray-800 mb-1">Surat Panggilan Orang Tua</h3>
+          <p class="text-xs text-gray-500 mb-4">Buat surat panggilan resmi untuk orang tua/wali siswa</p>
+          <a href="/bk" class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors">
+            Buat via Panel BK
+          </a>
+        </div>
+
+        <!-- Surat Izin Meninggalkan -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <h3 class="font-bold text-gray-800 mb-1">Surat Izin Meninggalkan Sekolah</h3>
+          <p class="text-xs text-gray-500 mb-4">Generate surat izin meninggalkan sekolah untuk siswa</p>
+          <a href="/cetak/izin/buat" class="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors">
+            Buat Surat Izin
+          </a>
+        </div>
+
+        <!-- Surat Pernyataan -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          </div>
+          <h3 class="font-bold text-gray-800 mb-1">Surat Pernyataan Kedisiplinan</h3>
+          <p class="text-xs text-gray-500 mb-4">Cetak surat pernyataan komitmen kedisiplinan siswa</p>
+          <button onclick="openModal('modal-pilih-siswa-pernyataan')" class="block w-full text-center bg-green-500 hover:bg-green-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors">
+            Pilih Siswa
+          </button>
+        </div>
+
+        <!-- Surat Peringatan SP -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <h3 class="font-bold text-gray-800 mb-1">Surat Peringatan (SP)</h3>
+          <p class="text-xs text-gray-500 mb-4">Cetak SP yang sudah disetujui Waka Kesiswaan</p>
+          <a href="/waka" class="block w-full text-center bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors">
+            Kelola via Panel Waka
+          </a>
+        </div>
+
+        <!-- Cetak Riwayat -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <h3 class="font-bold text-gray-800 mb-1">Rekap Riwayat Pelanggaran</h3>
+          <p class="text-xs text-gray-500 mb-4">Cetak rekap lengkap riwayat pelanggaran siswa</p>
+          <button onclick="openModal('modal-pilih-siswa-riwayat')" class="block w-full text-center bg-purple-500 hover:bg-purple-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors">
+            Pilih Siswa
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal Pilih Siswa Pernyataan -->
+<div id="modal-pilih-siswa-pernyataan" class="modal-overlay">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+    <h3 class="font-bold text-gray-800 mb-4">Pilih Siswa - Surat Pernyataan</h3>
+    <select id="select_siswa_pernyataan" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+      <option value="">-- Pilih Siswa --</option>
+      <% students.forEach(s => { %>
+      <option value="<%= s.id %>"><%= s.nama %> (<%= s.nisn %>) - <%= s.nama_kelas || '-' %></option>
+      <% }) %>
+    </select>
+    <div class="flex gap-3">
+      <button onclick="cetakPernyataan()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl text-sm">Cetak</button>
+      <button type="button" onclick="closeModal('modal-pilih-siswa-pernyataan')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Pilih Siswa Riwayat -->
+<div id="modal-pilih-siswa-riwayat" class="modal-overlay">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+    <h3 class="font-bold text-gray-800 mb-4">Pilih Siswa - Rekap Riwayat</h3>
+    <select id="select_siswa_riwayat" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+      <option value="">-- Pilih Siswa --</option>
+      <% students.forEach(s => { %>
+      <option value="<%= s.id %>"><%= s.nama %> (<%= s.nisn %>) - <%= s.nama_kelas || '-' %></option>
+      <% }) %>
+    </select>
+    <div class="flex gap-3">
+      <button onclick="cetakRiwayat()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl text-sm">Cetak</button>
+      <button type="button" onclick="closeModal('modal-pilih-siswa-riwayat')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function cetakPernyataan() {
+  const id = document.getElementById('select_siswa_pernyataan').value;
+  if (!id) { alert('Pilih siswa terlebih dahulu'); return; }
+  window.open(`/cetak/pernyataan/${id}`, '_blank');
+  closeModal('modal-pilih-siswa-pernyataan');
+}
+function cetakRiwayat() {
+  const id = document.getElementById('select_siswa_riwayat').value;
+  if (!id) { alert('Pilih siswa terlebih dahulu'); return; }
+  window.open(`/cetak/riwayat/${id}`, '_blank');
+  closeModal('modal-pilih-siswa-riwayat');
+}
+</script>
+<%- include('../layouts/footer') %>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Surat Peringatan <%= data.jenis_sp.toUpperCase() %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Times New Roman', serif; font-size: 12pt; color: #000; background: #fff; }
+    .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 20mm 25mm; }
+    .kop { display: flex; align-items: center; gap: 15px; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+    .kop img { width: 70px; height: 70px; object-fit: contain; }
+    .kop-text { flex: 1; text-align: center; }
+    .kop-text h1 { font-size: 16pt; font-weight: bold; text-transform: uppercase; }
+    .kop-text h2 { font-size: 13pt; font-weight: bold; text-transform: uppercase; }
+    .kop-text p { font-size: 10pt; }
+    .nomor-surat { text-align: center; margin: 20px 0 15px; }
+    .nomor-surat h3 { font-size: 14pt; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
+    .data-table { width: 100%; margin: 15px 0; }
+    .data-table td { padding: 3px 0; vertical-align: top; }
+    .data-table td:first-child { width: 180px; }
+    .data-table td:nth-child(2) { width: 15px; }
+    .isi { line-height: 1.8; margin: 15px 0; text-align: justify; }
+    .ttd { margin-top: 40px; }
+    .ttd-kanan { float: right; text-align: center; width: 220px; }
+    .ttd-space { height: 70px; }
+    .clearfix::after { content: ''; display: table; clear: both; }
+    .warning-box { border: 2px solid #dc2626; padding: 10px 15px; margin: 15px 0; background: #fef2f2; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="display:block; padding:10px; background:#f0f0f0; text-align:center; margin-bottom:10px;">
+    <button onclick="window.print()" style="background:#dc2626;color:white;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">🖨️ Cetak SP</button>
+    <button onclick="window.close()" style="background:#6b7280;color:white;padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:10px;">✕ Tutup</button>
+  </div>
+
+  <div class="page">
+    <div class="kop">
+      <% if (hasLogo) { %><img src="/uploads/logo.png" alt="Logo Sekolah"><% } %>
+      <div class="kop-text">
+        <h1>Pemerintah Daerah</h1>
+        <h2>SMK Negeri 1 Contoh</h2>
+        <p>Jl. Pendidikan No. 1, Kota Contoh | Telp: (021) 1234567</p>
+      </div>
+    </div>
+
+    <div class="nomor-surat">
+      <h3>Surat Peringatan <%= data.jenis_sp.replace('_',' ').toUpperCase() %></h3>
+      <p>Nomor: <%= new Date().getFullYear() %>/WAKA/<%= data.jenis_sp.toUpperCase() %>/<%= data.id %></p>
+    </div>
+
+    <div class="isi">
+      <p>Yang bertanda tangan di bawah ini, Wakil Kepala Sekolah Bidang Kesiswaan SMK Negeri 1 Contoh, memberikan Surat Peringatan kepada siswa:</p>
+    </div>
+
+    <table class="data-table">
+      <tr><td>Nama Siswa</td><td>:</td><td><strong><%= data.nama_siswa %></strong></td></tr>
+      <tr><td>NISN</td><td>:</td><td><%= data.nisn %></td></tr>
+      <tr><td>Kelas</td><td>:</td><td><%= data.nama_kelas || '-' %></td></tr>
+      <tr><td>Nama Orang Tua/Wali</td><td>:</td><td><%= data.nama_ortu || '-' %></td></tr>
+    </table>
+
+    <div class="warning-box">
+      <p><strong>Dasar Penerbitan SP:</strong></p>
+      <p><%= data.alasan %></p>
+    </div>
+
+    <div class="isi">
+      <p>Dengan ini kami memberikan <strong>Surat Peringatan <%= data.jenis_sp.replace('_',' ').toUpperCase() %></strong> kepada siswa tersebut di atas. Siswa diwajibkan untuk:</p>
+      <ol style="margin-left:20px; margin-top:8px; line-height:2;">
+        <li>Memperbaiki perilaku dan kedisiplinan segera.</li>
+        <li>Mengikuti program pembinaan yang ditetapkan sekolah.</li>
+        <li>Tidak mengulangi pelanggaran yang sama atau lebih berat.</li>
+        <li>Menjalani masa probation selama 30 hari terhitung sejak tanggal surat ini.</li>
+      </ol>
+    </div>
+
+    <div class="isi">
+      <p>Apabila siswa tidak mengindahkan peringatan ini, maka sekolah berhak mengambil tindakan lebih lanjut sesuai peraturan yang berlaku.</p>
+    </div>
+
+    <div class="ttd clearfix">
+      <div class="ttd-kanan">
+        <p><%= today %></p>
+        <p>Waka Kesiswaan,</p>
+        <div class="ttd-space"></div>
+        <p><strong><%= data.disetujui_nama || 'Waka Kesiswaan' %></strong></p>
+        <p>NIP. _______________</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 80px; border-top: 1px solid #000; padding-top: 10px;">
+      <p style="font-size:10pt;">Tembusan: 1. Kepala Sekolah &nbsp; 2. Guru BK &nbsp; 3. Orang Tua/Wali &nbsp; 4. Arsip</p>
+    </div>
+  </div>
+</body>
+</html>

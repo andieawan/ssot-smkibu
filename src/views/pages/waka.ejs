@@ -1,0 +1,144 @@
+<%- include('../layouts/header') %>
+<div class="flex h-full min-h-screen">
+  <%- include('../layouts/sidebar') %>
+  <div class="flex-1 ml-64 flex flex-col min-h-screen">
+    <%- include('../layouts/topbar') %>
+    <%- include('../layouts/flash') %>
+    <main class="flex-1 p-6 space-y-5">
+
+      <!-- SP Menunggu Approval -->
+      <% if (spMenunggu.length > 0) { %>
+      <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
+        <h3 class="font-bold text-yellow-800 mb-3">⏳ SP Menunggu Persetujuan (<%= spMenunggu.length %>)</h3>
+        <div class="space-y-3">
+          <% spMenunggu.forEach(sp => { %>
+          <div class="bg-white rounded-xl p-4 border border-yellow-200 flex items-start justify-between gap-3">
+            <div>
+              <div class="font-semibold text-gray-800"><%= sp.nama_siswa %> <span class="text-gray-400 font-normal text-sm">(<%= sp.nisn %>)</span></div>
+              <div class="text-xs text-gray-500"><%= sp.nama_kelas || '-' %></div>
+              <div class="text-sm text-gray-700 mt-1"><strong><%= sp.jenis_sp.toUpperCase() %></strong> &mdash; <%= sp.alasan %></div>
+              <div class="text-xs text-gray-400 mt-1">Diajukan oleh: <%= sp.dibuat_nama %> &bull; <%= new Date(sp.tanggal_dibuat).toLocaleDateString('id-ID') %></div>
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+              <form action="/waka/sp/<%= sp.id %>/approve" method="POST">
+                <button type="submit" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-medium">✓ Setujui</button>
+              </form>
+              <form action="/waka/sp/<%= sp.id %>/tolak" method="POST">
+                <button type="submit" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-lg font-medium">✗ Tolak</button>
+              </form>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Filter & Buat SP -->
+      <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <form method="GET" action="/waka" class="flex gap-3">
+          <input type="text" name="search" value="<%= search %>" placeholder="Cari siswa..."
+            class="px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700">Cari</button>
+        </form>
+        <button onclick="openModal('modal-buat-sp')" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">
+          + Buat Usulan SP
+        </button>
+      </div>
+
+      <!-- Daftar Siswa Kritis -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+          <h3 class="font-bold text-gray-800">Direktori Siswa Kritis (<%= total_count %>)</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Siswa</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Zona</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status SP</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Probation</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Poin</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <% if (students.length === 0) { %>
+              <tr><td colspan="6" class="px-5 py-8 text-center text-gray-400">Tidak ada siswa kritis</td></tr>
+              <% } else { %>
+              <% students.forEach(s => { %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-5 py-3">
+                  <a href="/siswa/<%= s.id %>" class="font-semibold text-gray-800 hover:text-indigo-600"><%= s.nama %></a>
+                  <div class="text-xs text-gray-400"><%= s.nisn %> &bull; <%= s.nama_kelas || '-' %></div>
+                </td>
+                <td class="px-5 py-3"><span class="badge-<%= s.status_warna %>"><%= s.status_warna %></span></td>
+                <td class="px-5 py-3">
+                  <% if (s.status_sp !== 'tidak_ada') { %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700"><%= s.status_sp.toUpperCase() %></span>
+                  <% } else { %><span class="text-gray-400 text-xs">-</span><% } %>
+                </td>
+                <td class="px-5 py-3">
+                  <% if (s.is_probation && s.probation_end) { %>
+                  <span class="text-xs text-purple-700 font-medium">s/d <%= new Date(s.probation_end).toLocaleDateString('id-ID') %></span>
+                  <% } else { %><span class="text-gray-400 text-xs">-</span><% } %>
+                </td>
+                <td class="px-5 py-3 font-semibold text-gray-700"><%= s.total_poin %></td>
+                <td class="px-5 py-3">
+                  <div class="flex gap-2">
+                    <a href="/siswa/<%= s.id %>" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg font-medium">Detail</a>
+                    <button onclick="openSPModal(<%= s.id %>, '<%= s.nama.replace(/'/g, "\\'") %>')"
+                      class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg font-medium">+ SP</button>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal Buat SP -->
+<div id="modal-buat-sp" class="modal-overlay">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+    <h3 class="font-bold text-gray-800 mb-4">Buat Usulan Surat Peringatan</h3>
+    <form action="/waka/sp/buat" method="POST" class="space-y-4">
+      <input type="hidden" name="student_id" id="sp_student_id">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Siswa</label>
+        <div id="sp_siswa_nama" class="px-3 py-2 bg-red-50 rounded-lg text-sm font-medium text-red-800 min-h-8">Pilih dari tabel</div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Jenis SP <span class="text-red-500">*</span></label>
+        <select name="jenis_sp" required class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="sp_1">SP 1 (Peringatan Pertama)</option>
+          <option value="sp_2">SP 2 (Peringatan Kedua)</option>
+          <option value="sp_3">SP 3 (Peringatan Ketiga / Final)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Alasan / Dasar Hukum <span class="text-red-500">*</span></label>
+        <textarea name="alasan" rows="3" required placeholder="Jelaskan alasan penerbitan SP..."
+          class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+      </div>
+      <div class="flex gap-3">
+        <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-sm">Ajukan SP</button>
+        <button type="button" onclick="closeModal('modal-buat-sp')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm">Batal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openSPModal(id, nama) {
+  document.getElementById('sp_student_id').value = id;
+  document.getElementById('sp_siswa_nama').textContent = nama;
+  openModal('modal-buat-sp');
+}
+</script>
+<%- include('../layouts/footer') %>
